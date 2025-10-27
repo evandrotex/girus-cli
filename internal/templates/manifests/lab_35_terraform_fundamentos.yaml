@@ -42,7 +42,8 @@ data:
           - "Crie um arquivo principal do Terraform usando vim:"
           - "`vim main.tf`"
           - "No editor vim, pressione 'i' para entrar no modo de inserção e adicione o seguinte conteúdo:"
-          - "```hcl
+          - |
+            ```
             terraform {
               required_providers {
                 aws = {
@@ -55,6 +56,18 @@ data:
             # Configuração do provider AWS
             provider \"aws\" {
               region = \"us-east-1\"
+
+              # As credenciais são fornecidas por variáveis de ambiente
+              # AWS_ACCESS_KEY_ID e AWS_SECRET_ACCESS_KEY
+  
+              # Necessário apenas para o ambiente de laboratório
+              # Em um ambiente real da AWS, isso não seria necessário
+              skip_credentials_validation = true
+              skip_metadata_api_check     = true
+              skip_requesting_account_id  = true
+  
+              # Solução para o problema do S3 no ambiente de laboratório
+              s3_use_path_style = true
             }
 
             # Recurso de bucket S3 simples
@@ -66,7 +79,7 @@ data:
                 Environment = \"Dev\"
               }
             }
-            ```"
+            ```
           - "Para salvar o arquivo e sair do vim, pressione 'ESC' e digite ':wq'"
           - "Inicialize o Terraform para baixar os providers necessários:"
           - "`terraform init`"
@@ -84,7 +97,7 @@ data:
             title: "Ciclo de vida Terraform"
             content: "O fluxo típico do Terraform segue: init (inicializa o projeto) → plan (mostra alterações) → apply (aplica alterações) → destroy (quando necessário remover a infraestrutura)."
         validation:
-          - command: "terraform state list | grep aws_s3_bucket.primeiro_bucket && echo 'success' || echo 'error'"
+          - command: "terraform state list | grep -q aws_s3_bucket.primeiro_bucket && echo 'success' || echo 'error'"
             expectedOutput: "success"
             errorMessage: "O recurso aws_s3_bucket.primeiro_bucket não foi criado corretamente."
 
